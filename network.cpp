@@ -260,7 +260,6 @@ bool ConnectTCPSocket (TSOCKTYPE* sock, unsigned short NumPort, unsigned long IP
 #endif
 
 	// Disable Nagle algorithm
-	// Don't care about result. If Nagle is not disabled, KissBox Editor will work however
 	//nRet = setsockopt(*sock, IPPROTO_TCP, TCP_NODELAY, (char *) &flag, sizeof(int));
 
 	// Try to connect to server
