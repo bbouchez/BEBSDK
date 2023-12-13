@@ -91,6 +91,10 @@
 
 19/11/2023
   - removed reference to unused utility library XPlatformUtils
+
+13/12/2023
+  - removed unused ConnectSocket function (duplicate of of ConnectTCPSocket and available on Windows only)
+  - added function description in Doxygen format
  */
 
 #ifdef __BORLANDC__
@@ -115,11 +119,11 @@
 
 #include <stdio.h>
 
+//! Minimum Winsock version for the library to work
 #define REQUESTED_WINSOCK_VER	0x101
 
 #if defined (__TARGET_WIN__)
 bool OpenNetwork (void)
-// Initialize Winsock and check version
 {
 	int err;
 	WSADATA wsaData;
@@ -137,15 +141,13 @@ bool OpenNetwork (void)
 //---------------------------------------------------------------------------
 
 void CloseNetwork (void)
-// Free all Windows socket ressources allocated to the application
 {
 	WSACleanup();
 }  // CloseNetwork
 //---------------------------------------------------------------------------
 #endif
 
-bool CreateUDPSocket (TSOCKTYPE* sock, unsigned short NumPort, bool shouldReuse)
-// NumPort = port number to listen to
+bool CreateUDPSocket (TSOCKTYPE* sock, unsigned short NumPort, bool ShouldReuse)
 {
 	long nRet;
 	sockaddr_in AdrRecv;
@@ -159,7 +161,7 @@ bool CreateUDPSocket (TSOCKTYPE* sock, unsigned short NumPort, bool shouldReuse)
 
 	if (NumPort==0) return true;  // Do not bind the socket to a specific listening port
 
-	if (shouldReuse)
+	if (ShouldReuse)
 	{
 		optval=1;
 #if defined (__TARGET_MAC__)
@@ -205,48 +207,6 @@ bool CreateUDPSocket (TSOCKTYPE* sock, unsigned short NumPort, bool shouldReuse)
 	return true;  // No error
 }  // CreateUDPSocket
 //---------------------------------------------------------------------------
-
-#if defined (__TARGET_WIN__)
-bool ConnectSocket (TSOCKTYPE* sock, unsigned short NumPort, unsigned long IPAddr, HWND hwnd, unsigned int MsgId, unsigned int TempoConnect)
-// Try to establish socket between editor and KissBox
-// hwnd=0 et MsgId=0 : using blocking mode
-{
-  unsigned long nRet;
-  sockaddr_in saServer;
-
-  // Create TCP/IP socket
-  *sock=socket(AF_INET, SOCK_STREAM, 0);
-  if (*sock==INVALID_SOCKET) return false;
-
-  // Init server address
-  memset (&saServer, 0, sizeof(sockaddr_in));
-  saServer.sin_family=AF_INET;
-  saServer.sin_port=htons(NumPort);
-  saServer.sin_addr.s_addr=htonl(IPAddr);
-
-  if ((hwnd!=0)&&(MsgId!=0)) {
-    // Trying to use asynchronous mode
-	nRet=WSAAsyncSelect(*sock, hwnd, MsgId, FD_CONNECT);
-    if (nRet==(unsigned long)SOCKET_ERROR) {
-      closesocket(*sock);
-      *sock=INVALID_SOCKET;
-      return false;
-    }
-  }
-
-  // Try to connect
-  nRet=connect(*sock, (const struct sockaddr*)&saServer, sizeof(saServer));
-  Sleep(TempoConnect);
-  if (nRet==INVALID_SOCKET){
-  	closesocket(*sock);
-    *sock=INVALID_SOCKET;
-  	return false;
-  }
-
-  return true;
-}  // ConnectSocket
-//---------------------------------------------------------------------------
-#endif
 
 bool ConnectTCPSocket (TSOCKTYPE* sock, unsigned short NumPort, unsigned long IPAddr, unsigned int TimeOut)
 {
