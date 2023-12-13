@@ -6,9 +6,9 @@ Supported platforms :
 - Mac OS
 - Linux
 
-IMPORTANT : project shall define 
-__TARGET_LINUX__    to compile the libraries under Linux
-__TARGET_WIN__      to compile the libraries under Windows
-__TARGET_MAC__      to compile the libraries under MacOS
+IMPORTANT : project shall define in preprocessor
+- `#define __TARGET_LINUX__`    to compile the libraries under Linux
+- `#define __TARGET_WIN__`      to compile the libraries under Windows
+- `#define __TARGET_MAC__`      to compile the libraries under MacOS
 
-Only one target shall be defined !
+One and only target must be defined !
