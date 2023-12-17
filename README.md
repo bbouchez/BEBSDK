@@ -11,4 +11,4 @@ IMPORTANT : project shall define in preprocessor
 - `#define __TARGET_WIN__`      to compile the libraries under Windows
 - `#define __TARGET_MAC__`      to compile the libraries under MacOS
 
-One and only target must be defined !
+One and only one target must be defined !
