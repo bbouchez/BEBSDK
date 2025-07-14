@@ -95,6 +95,9 @@
 13/12/2023
   - removed unused ConnectSocket function (duplicate of of ConnectTCPSocket and available on Windows only)
   - added function description in Doxygen format
+
+13/07/2025
+  - code added for Linux targets in ConnectTCPSocket (only Windows and Mac code was implemented)
  */
 
 #ifdef __BORLANDC__
@@ -115,6 +118,7 @@
 #endif
 #ifdef __TARGET_LINUX__
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 
 #include <stdio.h>
@@ -225,6 +229,10 @@ bool ConnectTCPSocket (TSOCKTYPE* sock, unsigned short NumPort, unsigned long IP
 	socklen_t len;
 	int OpenResult;
 #endif
+#ifdef __TARGET_LINUX__
+    int Flags;
+    TSOCKTYPE	TCPSocket;
+#endif // TARGET_LINUX__
 	bool SocketWriteable;
 
 // Value for time out is not in milliseconds on WIN platform
@@ -244,6 +252,12 @@ bool ConnectTCPSocket (TSOCKTYPE* sock, unsigned short NumPort, unsigned long IP
 	saServer.sin_addr.s_addr=htonl(IPAddr);
 
 #if defined (__TARGET_MAC__)
+	// Declare socket as non blocking
+	Flags=fcntl(*sock, F_GETFL, 0);
+	Flags|=O_NONBLOCK;
+	fcntl(*sock, F_SETFL, Flags);
+#endif
+#if defined (__TARGET_LINUX__)
 	// Declare socket as non blocking
 	Flags=fcntl(*sock, F_GETFL, 0);
 	Flags|=O_NONBLOCK;
@@ -272,11 +286,27 @@ bool ConnectTCPSocket (TSOCKTYPE* sock, unsigned short NumPort, unsigned long IP
 #if defined (__TARGET_MAC__)
 	TCPSocket=*sock;
 #endif
+#ifdef __TARGET_LINUX__
+	TCPSocket=*sock;
+#endif
 	SocketWriteable=false;
 	TimeCount=0;
 	do
 	{
 #if defined (__TARGET_MAC__)
+		FD_ZERO(&Writefds);
+		FD_SET(TCPSocket, &Writefds);
+
+		timeout.tv_usec=0;
+		timeout.tv_sec=0;
+
+		nRet=select(TCPSocket+1, 0, &Writefds, 0, &timeout);
+		//nRet=select(1, 0, &Writefds, 0, &timeout);		// Is it 1 or TCPSocket+1 ?????
+		usleep (1000);
+		if (nRet>=1)
+			SocketWriteable=true;
+#endif
+#if defined (__TARGET_LINUX__)
 		FD_ZERO(&Writefds);
 		FD_SET(TCPSocket, &Writefds);
 
