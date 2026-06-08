@@ -46,7 +46,7 @@
 
 #if defined (__TARGET_WIN__)
 // If winsock.h is used, link with wsock32.lib
-// If winsock2.h i used, link with ws2_32.lib
+// If winsock2.h is used, link with ws2_32.lib
 #ifdef __USE_WINSOCK__
 #include <winsock.h>
 #else
@@ -62,6 +62,10 @@ typedef int TSOCKTYPE;
 #endif
 #if defined (__TARGET_LINUX__)
 typedef int TSOCKTYPE;
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 #if defined (__TARGET_WIN__)
@@ -93,5 +97,9 @@ bool DataAvail (TSOCKTYPE sock, unsigned int WaitTimeMS);
 
 //! Close socket (terminates connection if TCP) and marks it as 
 void CloseSocket (TSOCKTYPE* sock);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

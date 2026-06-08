@@ -31,7 +31,15 @@
 #ifndef __SYSTEMSLEEP_H__
 #define __SYSTEMSLEEP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
  //! Makes system wait for x milliseconds
 void SystemSleepMillis(unsigned int MSTime);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
